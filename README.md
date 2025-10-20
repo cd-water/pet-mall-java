@@ -14,3 +14,5 @@
 * 阿里云OSS
 * JWT令牌技术
 * WebSocket
+
+### 注：替换application.yml文件中的密码相关信息

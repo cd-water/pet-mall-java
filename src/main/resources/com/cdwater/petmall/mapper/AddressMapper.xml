@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.AddressMapper">
+    <insert id="insert">
+        insert into address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="consignee != null">consignee,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="provinceCode != null">province_code,</if>
+            <if test="cityCode != null">city_code,</if>
+            <if test="districtCode != null">district_code,</if>
+            <if test="detailAddress != null">detail_address,</if>
+            <if test="tag != null">tag,</if>
+            <if test="isDefault != null">is_default,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="consignee != null">#{consignee},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="provinceCode != null">#{provinceCode},</if>
+            <if test="cityCode != null">#{cityCode},</if>
+            <if test="districtCode != null">#{districtCode},</if>
+            <if test="detailAddress != null">#{detailAddress},</if>
+            <if test="tag != null">#{tag},</if>
+            <if test="isDefault != null">#{isDefault},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update address
+        <set>
+            <if test="consignee != null">consignee = #{consignee},</if>
+            <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
+            <if test="provinceCode != null">province_code = #{provinceCode},</if>
+            <if test="cityCode != null">city_code = #{cityCode},</if>
+            <if test="districtCode != null">district_code = #{districtCode},</if>
+            <if test="detailAddress != null">detail_address = #{detailAddress},</if>
+            <if test="tag != null">tag = #{tag},</if>
+            <if test="isDefault != null">is_default = #{isDefault},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="setAllNonDefault">
+        update address
+        set is_default = 0
+        where user_id = #{userId}
+    </update>
+
+    <select id="selectByUserId" resultType="com.cdwater.petmall.entity.Address">
+        select id,
+               user_id,
+               consignee,
+               phone_number,
+               province_code,
+               city_code,
+               district_code,
+               detail_address,
+               tag,
+               is_default
+        from address
+        where user_id = #{userId}
+        order by is_default desc, id desc
+    </select>
+
+    <select id="selectById" resultType="com.cdwater.petmall.entity.Address">
+        select id,
+               user_id,
+               consignee,
+               phone_number,
+               province_code,
+               city_code,
+               district_code,
+               detail_address,
+               tag,
+               is_default
+        from address
+        where id = #{id}
+    </select>
+
+    <!--删除操作__________________________________________________________________________________________________________-->
+    <delete id="deleteById">
+        delete
+        from address
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByUserId">
+        delete
+        from address
+        where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteByUserIds">
+        delete
+        from address
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+    <!--删除操作__________________________________________________________________________________________________________-->
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.NoticeMapper">
+
+    <insert id="insert">
+        insert into notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="releaseTime != null">release_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="releaseTime != null">#{releaseTime},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById">
+        delete
+        from notice
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from notice where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="updateById">
+        update notice
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.cdwater.petmall.entity.Notice">
+        select id, title, content, release_time
+        from notice
+        where id = #{id}
+    </select>
+
+    <select id="selectPage" resultType="com.cdwater.petmall.entity.Notice">
+        select id, title, content, release_time
+        from notice
+        <where>
+            <if test="title != null and title!=''">and title like concat('%',#{title},'%')</if>
+        </where>
+        order by release_time desc
+    </select>
+
+    <select id="selectLatest" resultType="com.cdwater.petmall.entity.Notice">
+        select id, title, content, release_time
+        from notice
+        order by release_time desc
+        limit 1
+    </select>
+</mapper>

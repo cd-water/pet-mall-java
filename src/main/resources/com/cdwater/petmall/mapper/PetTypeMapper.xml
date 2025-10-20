@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.PetTypeMapper">
+
+    <insert id="insert">
+        insert into pet_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById">
+        delete
+        from pet_type
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from pet_type where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="updateById">
+        update pet_type
+        <set>
+            <if test="name != null">name = #{name},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.cdwater.petmall.entity.PetType">
+        select id, name
+        from pet_type
+        where id = #{id}
+    </select>
+
+    <select id="selectPage" resultType="com.cdwater.petmall.entity.PetType">
+        select id, name from pet_type
+        <where>
+            <if test="name != null and name!= ''">and name like concat('%', #{name}, '%')</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectByName" resultType="com.cdwater.petmall.entity.PetType">
+        select id, name
+        from pet_type
+        where name = #{name}
+    </select>
+
+    <select id="selectAll" resultType="com.cdwater.petmall.entity.PetType">
+        select id, name
+        from pet_type
+    </select>
+
+    <select id="selectHot4" resultType="com.cdwater.petmall.entity.PetType">
+        select pt.id,
+               pt.name
+        from pet_type pt
+                 left join pet p on pt.id = p.type_id
+                 left join pet_orders po on p.id = po.pet_id and po.order_status != 5
+        group by pt.id, pt.name
+        order by count(po.id) desc, pt.id
+        limit 4;
+    </select>
+</mapper>

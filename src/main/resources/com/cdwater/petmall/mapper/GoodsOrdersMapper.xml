@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.GoodsOrdersMapper">
+    <insert id="insert">
+        insert into goods_orders
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null">order_no,</if>
+            <if test="orderStatus != null">order_status,</if>
+            <if test="orderTime != null">order_time,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="totalPrice != null">total_price,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="shopId != null">shop_id,</if>
+            <if test="goodsId != null">goods_id,</if>
+            <if test="goodsName != null">goods_name,</if>
+            <if test="goodsImg != null">goods_img,</if>
+            <if test="goodsPrice != null">goods_price,</if>
+            <if test="addressId != null">address_id,</if>
+            <if test="consignee != null">consignee,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="provinceCode != null">province_code,</if>
+            <if test="cityCode != null">city_code,</if>
+            <if test="districtCode != null">district_code,</if>
+            <if test="detailAddress != null">detail_address,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null">#{orderNo},</if>
+            <if test="orderStatus != null">#{orderStatus},</if>
+            <if test="orderTime != null">#{orderTime},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="totalPrice != null">#{totalPrice},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="shopId != null">#{shopId},</if>
+            <if test="goodsId != null">#{goodsId},</if>
+            <if test="goodsName != null">#{goodsName},</if>
+            <if test="goodsImg != null">#{goodsImg},</if>
+            <if test="goodsPrice != null">#{goodsPrice},</if>
+            <if test="addressId != null">#{addressId},</if>
+            <if test="consignee != null">#{consignee},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="provinceCode != null">#{provinceCode},</if>
+            <if test="cityCode != null">#{cityCode},</if>
+            <if test="districtCode != null">#{districtCode},</if>
+            <if test="detailAddress != null">#{detailAddress},</if>
+        </trim>
+    </insert>
+
+    <select id="selectByOrderNo" resultType="com.cdwater.petmall.entity.GoodsOrders">
+        select id,
+               order_no,
+               order_status,
+               order_time,
+               quantity,
+               total_price,
+               user_id,
+               shop_id,
+               goods_id,
+               goods_name,
+               goods_img,
+               goods_price,
+               address_id,
+               consignee,
+               phone_number,
+               province_code,
+               city_code,
+               district_code,
+               detail_address
+        from goods_orders
+        where order_no = #{orderNo}
+    </select>
+
+    <update id="updateById">
+        update goods_orders
+        <set>
+            <if test="orderStatus != null">order_status = #{orderStatus},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectPage" resultType="com.cdwater.petmall.model.vo.GoodsOrdersPageVO">
+        select go.id,go.order_no, go.order_status, go.order_time, go.quantity, go.total_price,
+        go.goods_name, go.goods_img, go.goods_price, go.consignee, go.phone_number,
+        go.province_code, go.city_code, go.district_code, go.detail_address,
+        u.nickname as userNickname, ps.nickname as shopName
+        from goods_orders go
+        left join user u on go.user_id = u.id
+        left join pet_shop ps on go.shop_id = ps.id
+        <where>
+            <if test="orderNo!= null">and go.order_no =#{orderNo}</if>
+            <if test="orderStatus!= null">and go.order_status = #{orderStatus}</if>
+            <if test="orderTime!=null">and go.order_time &gt; #{orderTime}</if>
+            <if test="shopId!= null">and go.shop_id = #{shopId}</if>
+        </where>
+        order by go.order_time desc
+    </select>
+
+    <select id="selectById" resultType="com.cdwater.petmall.model.vo.GoodsOrdersPageVO">
+        select go.id,
+               go.order_no,
+               go.order_status,
+               go.order_time,
+               go.quantity,
+               go.total_price,
+               go.user_id,
+               go.shop_id,
+               go.goods_id,
+               go.goods_name,
+               go.goods_img,
+               go.goods_price,
+               go.address_id,
+               go.consignee,
+               go.phone_number,
+               go.province_code,
+               go.city_code,
+               go.district_code,
+               go.detail_address,
+               u.nickname  as userNickname,
+               ps.nickname as shopName
+        from goods_orders go
+                 left join user u on go.user_id = u.id
+                 left join pet_shop ps on go.shop_id = ps.id
+        where go.id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultType="com.cdwater.petmall.model.vo.GoodsOrdersShowVO">
+        select go.order_no,
+               go.order_status,
+               go.order_time,
+               go.quantity,
+               go.total_price,
+               go.shop_id,
+               go.goods_name,
+               go.goods_img,
+               go.goods_price,
+               ps.nickname as shopName
+        from goods_orders go
+                 left join pet_shop ps on go.shop_id = ps.id
+        where go.user_id = #{userId}
+        order by go.order_time desc
+    </select>
+
+    <select id="selectByOrderStatusAndBeforeTime" resultType="com.cdwater.petmall.entity.GoodsOrders">
+        select id,
+               order_status
+        from goods_orders
+        where order_status = #{orderStatus}
+          and order_time &lt; #{time}
+    </select>
+
+    <!--统计相关-->
+    <select id="sumByOrderStatus" resultType="java.math.BigDecimal">
+        select coalesce(sum(total_price), 0)
+        from goods_orders
+        where order_status != 5
+    </select>
+
+    <select id="getShopAmountMap" resultType="java.util.Map">
+        select ps.nickname as shopName, sum(go.total_price) as amount
+        from goods_orders go
+                 left join pet_shop ps on go.shop_id = ps.id
+        where go.order_status != 5
+        group by go.shop_id
+    </select>
+
+    <select id="selectTodayDataByShopId" resultType="java.util.Map">
+        select status_list.status,
+               coalesce(count(go.id), 0)        as count,
+               coalesce(sum(go.total_price), 0) as amount
+        from (select 0 as status
+              union
+              select 1
+              union
+              select 2
+              union
+              select 3
+              union
+              select 4
+              union
+              select 5) as status_list
+                 left join goods_orders go on status_list.status = go.order_status
+            and go.shop_id = #{shopId}
+            and date(go.order_time) = curdate()
+        group by status_list.status
+        order by status_list.status;
+    </select>
+
+    <select id="selectRangeAmountDataByShopId" resultType="java.math.BigDecimal">
+        select
+        coalesce(sum(go.total_price), 0)
+        from
+        (
+        <foreach collection="dateList" item="date" separator=" union all ">
+            select #{date} date
+        </foreach>
+        ) d
+        left join goods_orders go on date(go.order_time) = d.date and go.order_status != 5 and go.shop_id = #{shopId}
+        group by d.date
+        order by d.date
+    </select>
+
+    <select id="selectRangeNumberDataByShopId" resultType="java.util.Map">
+        select
+        count(go.id) as totalNumber,
+        count(case when go.order_status != 5 then go.id end) as validNumber
+        from
+        (
+        <foreach collection="dateList" item="date" separator=" union all ">
+            select #{date} as date
+        </foreach>
+        ) d
+        left join goods_orders go on date(go.order_time) = d.date and go.shop_id = #{shopId}
+        group by d.date
+        order by d.date
+    </select>
+
+    <select id="countByShopIdAndOrderStatus" resultType="java.lang.Integer">
+        select count(*)
+        from goods_orders
+        where shop_id = #{shopId}
+          and order_status = #{orderStatus}
+    </select>
+</mapper>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.PetOrdersMapper">
+    <select id="selectPage" resultType="com.cdwater.petmall.model.vo.PetOrdersPageVO">
+        select po.id, po.order_no, po.order_status, po.order_time, po.pet_name,
+        po.pet_img, po.pet_price, po.consignee, po.phone_number, po.province_code, po.city_code,
+        po.district_code, po.detail_address,u.nickname as userNickname,ps.nickname as shopName
+        from pet_orders po
+        left join user u on po.user_id = u.id
+        left join pet_shop ps on po.shop_id = ps.id
+        <where>
+            <if test="orderNo!= null">and po.order_no = #{orderNo}</if>
+            <if test="orderStatus!= null">and po.order_status = #{orderStatus}</if>
+            <if test="orderTime!=null">and po.order_time &gt; #{orderTime}</if>
+            <if test="shopId!= null">and po.shop_id = #{shopId}</if>
+        </where>
+        order by po.order_time desc
+    </select>
+
+    <insert id="insert">
+        insert into pet_orders
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null">order_no,</if>
+            <if test="orderStatus != null">order_status,</if>
+            <if test="orderTime != null">order_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="shopId != null">shop_id,</if>
+            <if test="petId != null">pet_id,</if>
+            <if test="petName != null">pet_name,</if>
+            <if test="petImg != null">pet_img,</if>
+            <if test="petPrice != null">pet_price,</if>
+            <if test="addressId != null">address_id,</if>
+            <if test="consignee != null">consignee,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="provinceCode != null">province_code,</if>
+            <if test="cityCode != null">city_code,</if>
+            <if test="districtCode != null">district_code,</if>
+            <if test="detailAddress != null">detail_address,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null">#{orderNo},</if>
+            <if test="orderStatus != null">#{orderStatus},</if>
+            <if test="orderTime != null">#{orderTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="shopId != null">#{shopId},</if>
+            <if test="petId != null">#{petId},</if>
+            <if test="petName != null">#{petName},</if>
+            <if test="petImg != null">#{petImg},</if>
+            <if test="petPrice != null">#{petPrice},</if>
+            <if test="addressId != null">#{addressId},</if>
+            <if test="consignee != null">#{consignee},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="provinceCode != null">#{provinceCode},</if>
+            <if test="cityCode != null">#{cityCode},</if>
+            <if test="districtCode != null">#{districtCode},</if>
+            <if test="detailAddress != null">#{detailAddress},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update pet_orders
+        <set>
+            <if test="orderStatus != null">order_status = #{orderStatus},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectByOrderNo" resultType="com.cdwater.petmall.entity.PetOrders">
+        select id,
+               order_no,
+               order_status,
+               order_time,
+               user_id,
+               shop_id,
+               pet_id,
+               pet_name,
+               pet_img,
+               pet_price,
+               address_id,
+               consignee,
+               phone_number,
+               province_code,
+               city_code,
+               district_code,
+               detail_address
+        from pet_orders
+        where order_no = #{orderNo}
+    </select>
+
+    <select id="selectByUserId" resultType="com.cdwater.petmall.model.vo.PetOrdersShowVO">
+        select po.order_no,
+               po.order_status,
+               po.order_time,
+               po.shop_id,
+               po.pet_id,
+               po.pet_name,
+               po.pet_img,
+               po.pet_price,
+               ps.nickname as shopName
+        from pet_orders po
+                 left join pet_shop ps on po.shop_id = ps.id
+        where po.user_id = #{userId}
+        order by po.order_time desc
+    </select>
+
+    <select id="selectByOrderStatusAndBeforeTime" resultType="com.cdwater.petmall.entity.PetOrders">
+        select id,
+               order_status
+        from pet_orders
+        where order_status = #{orderStatus}
+          and order_time &lt; #{time}
+    </select>
+
+    <!--统计相关-->
+    <select id="sumByOrderStatus" resultType="java.math.BigDecimal">
+        select coalesce(sum(pet_price), 0)
+        from pet_orders
+        where order_status != 5
+    </select>
+
+    <select id="getShopAmountMap" resultType="java.util.Map">
+        select ps.nickname as shopName, coalesce(sum(po.pet_price), 0) as amount
+        from pet_orders po
+                 left join pet_shop ps on po.shop_id = ps.id
+        where po.order_status != 5
+        group by po.shop_id
+    </select>
+
+    <select id="selectTodayDataByShopId" resultType="java.util.Map">
+        select status_list.status,
+               coalesce(count(po.id), 0)      as count,
+               coalesce(sum(po.pet_price), 0) as amount
+        from (select 0 as status
+              union
+              select 1
+              union
+              select 2
+              union
+              select 3
+              union
+              select 4
+              union
+              select 5) as status_list
+                 left join pet_orders po on status_list.status = po.order_status
+            and po.shop_id = #{shopId}
+            and date(po.order_time) = curdate()
+        group by status_list.status
+        order by status_list.status;
+    </select>
+
+    <select id="selectRangeAmountDataByShopId" resultType="java.math.BigDecimal">
+        select
+        coalesce(sum(po.pet_price), 0)
+        from
+        (
+        <foreach collection="dateList" item="date" separator=" union all ">
+            select #{date} date
+        </foreach>
+        ) d
+        left join pet_orders po on date(po.order_time) = d.date and po.order_status != 5 and po.shop_id = #{shopId}
+        group by d.date
+        order by d.date
+    </select>
+
+    <select id="selectRangeNumberDataByShopId" resultType="java.util.Map">
+        select
+        count(po.id) as totalNumber,
+        count(case when po.order_status != 5 then po.id end) as validNumber
+        from
+        (
+        <foreach collection="dateList" item="date" separator=" union all ">
+            select #{date} as date
+        </foreach>
+        ) d
+        left join pet_orders po on date(po.order_time) = d.date and po.shop_id = #{shopId}
+        group by d.date
+        order by d.date
+    </select>
+
+    <select id="countByShopIdAndOrderStatus" resultType="java.lang.Integer">
+        select count(*)
+        from pet_orders
+        where shop_id = #{shopId}
+          and order_status = #{orderStatus}
+    </select>
+</mapper>

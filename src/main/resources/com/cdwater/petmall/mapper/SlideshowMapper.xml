@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.SlideshowMapper">
+
+    <insert id="insert">
+        insert into slideshow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="petId != null">pet_id,</if>
+            <if test="shopId != null">shop_id,</if>
+            <if test="img != null">img,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="petId != null">#{petId},</if>
+            <if test="shopId != null">#{shopId},</if>
+            <if test="img != null">#{img},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update slideshow
+        <set>
+            <if test="petId != null">pet_id = #{petId},</if>
+            <if test="shopId != null">shop_id = #{shopId},</if>
+            <if test="img != null">img = #{img},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.cdwater.petmall.model.vo.SlideshowQueryVO">
+        select id, pet_id, shop_id, img
+        from slideshow
+        where id = #{id}
+    </select>
+
+    <select id="selectPage" resultType="com.cdwater.petmall.model.vo.SlideshowPageVO">
+        select s.id, s.img, p.name as petName,ps.nickname as shopName
+        from slideshow s
+        left join pet p on s.pet_id = p.id
+        left join pet_shop ps on s.shop_id = ps.id
+        <where>
+            <if test="petName!=null and petName!=''">and p.name like concat('%',#{petName},'%')</if>
+            <if test="shopName!=null and shopName!=''">and ps.nickname like concat('%',#{shopName},'%')</if>
+        </where>
+        order by s.id desc
+    </select>
+
+    <select id="selectList" resultType="com.cdwater.petmall.entity.Slideshow">
+        select id, pet_id, shop_id, img
+        from slideshow
+    </select>
+
+    <!--删除操作__________________________________________________________________________________________________________-->
+    <delete id="deleteById">
+        delete
+        from slideshow
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from slideshow where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByPetId">
+        delete
+        from slideshow
+        where pet_id = #{petId}
+    </delete>
+
+    <delete id="deleteByPetIds">
+        delete
+        from slideshow
+        where pet_id in
+        <foreach collection="petIds" item="petId" open="(" separator="," close=")">
+            #{petId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByShopId">
+        delete
+        from slideshow
+        where shop_id = #{shopId}
+    </delete>
+
+    <delete id="deleteByShopIds">
+        delete
+        from slideshow
+        where shop_id in
+        <foreach collection="shopIds" item="shopId" open="(" separator="," close=")">
+            #{shopId}
+        </foreach>
+    </delete>
+    <!--删除操作__________________________________________________________________________________________________________-->
+</mapper>

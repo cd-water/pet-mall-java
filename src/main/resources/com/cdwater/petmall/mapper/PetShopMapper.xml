@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.PetShopMapper">
+
+    <insert id="insert">
+        insert into pet_shop
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">nickname,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="username != null">username,</if>
+            <if test="password != null">password,</if>
+            <if test="role != null">role,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="provinceCode != null">province_code,</if>
+            <if test="cityCode != null">city_code,</if>
+            <if test="districtCode != null">district_code,</if>
+            <if test="detailAddress != null">detail_address,</if>
+            <if test="introduce != null">introduce,</if>
+            <if test="practiceLicense != null">practice_license,</if>
+            <if test="principalName != null">principal_name,</if>
+            <if test="principalNo != null">principal_no,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createTime!=null">create_time,</if>
+            <if test="updateTime!=null">update_time,</if>
+            <if test="isDeleted!=null">is_deleted,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">#{nickname},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="username != null">#{username},</if>
+            <if test="password != null">#{password},</if>
+            <if test="role != null">#{role},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="provinceCode != null">#{provinceCode},</if>
+            <if test="cityCode != null">#{cityCode},</if>
+            <if test="districtCode != null">#{districtCode},</if>
+            <if test="detailAddress != null">#{detailAddress},</if>
+            <if test="introduce != null">#{introduce},</if>
+            <if test="practiceLicense != null">#{practiceLicense},</if>
+            <if test="principalName != null">#{principalName},</if>
+            <if test="principalNo != null">#{principalNo},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createTime!=null">#{createTime},</if>
+            <if test="updateTime!=null">#{updateTime},</if>
+            <if test="isDeleted!=null">#{isDeleted},</if>
+        </trim>
+    </insert>
+
+    <update id="deleteById">
+        update pet_shop
+        set nickname='账号已注销',
+            is_deleted = 1
+        where id = #{id}
+    </update>
+
+    <update id="deleteByIds">
+        update pet_shop set nickname='账号已注销', is_deleted = 1 where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+    <update id="updateById">
+        update pet_shop
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="provinceCode != null">province_code=#{provinceCode},</if>
+            <if test="cityCode != null">city_code=#{cityCode},</if>
+            <if test="districtCode != null">district_code=#{districtCode},</if>
+            <if test="detailAddress != null">detail_address=#{detailAddress},</if>
+            <if test="introduce != null">introduce = #{introduce},</if>
+            <if test="practiceLicense != null">practice_license = #{practiceLicense},</if>
+            <if test="principalName != null">principal_name = #{principalName},</if>
+            <if test="principalNo != null">principal_no = #{principalNo},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.cdwater.petmall.entity.PetShop">
+        select id,
+               nickname,
+               avatar,
+               username,
+               password,
+               role,
+               phone,
+               email,
+               province_code,
+               city_code,
+               district_code,
+               detail_address,
+               introduce,
+               practice_license,
+               principal_name,
+               principal_no,
+               audit_status,
+               create_time,
+               update_time,
+               is_deleted
+        from pet_shop
+        where id = #{id}
+          and is_deleted = 0
+    </select>
+
+    <!--不回显密码-->
+    <select id="selectPage" resultType="com.cdwater.petmall.entity.PetShop">
+        select id, nickname, avatar, username, role, phone, email, province_code, city_code,
+        district_code, detail_address, introduce, practice_license, principal_name,
+        principal_no, audit_status, create_time, update_time, is_deleted from pet_shop
+        <where>
+            <if test="nickname != null and nickname != ''">and nickname like concat('%', #{nickname}, '%')</if>
+            <if test="auditStatus!=null">and audit_status = #{auditStatus}</if>
+            and is_deleted = 0
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectByUsername" resultType="com.cdwater.petmall.entity.PetShop">
+        select id,
+               nickname,
+               avatar,
+               username,
+               password,
+               role,
+               phone,
+               email,
+               province_code,
+               city_code,
+               district_code,
+               detail_address,
+               introduce,
+               practice_license,
+               principal_name,
+               principal_no,
+               audit_status,
+               create_time,
+               update_time,
+               is_deleted
+        from pet_shop
+        where username = #{username}
+    </select>
+
+    <select id="selectByPhone" resultType="com.cdwater.petmall.entity.PetShop">
+        select id,
+               nickname,
+               avatar,
+               username,
+               password,
+               role,
+               phone,
+               email,
+               province_code,
+               city_code,
+               district_code,
+               detail_address,
+               introduce,
+               practice_license,
+               principal_name,
+               principal_no,
+               audit_status,
+               create_time,
+               update_time,
+               is_deleted
+        from pet_shop
+        where phone = #{phone}
+    </select>
+
+    <select id="countByAuditStatus" resultType="java.lang.Integer">
+        select count(*)
+        from pet_shop
+        where audit_status = #{auditStatus}
+          and is_deleted = 0
+    </select>
+
+    <select id="selectHot6" resultType="com.cdwater.petmall.model.vo.PetShopShowVO">
+        select ps.id,
+               ps.nickname,
+               ps.avatar,
+               ps.phone,
+               ps.province_code,
+               ps.city_code,
+               ps.district_code,
+               ps.detail_address
+        from pet_shop ps
+                 left join (select shop_id, count(*) as pet_orders_count
+                            from pet_orders
+                            where order_status != 5
+                            group by shop_id) po on ps.id = po.shop_id
+                 left join (select shop_id, count(*) as goods_orders_count
+                            from goods_orders
+                            where order_status != 5
+                            group by shop_id) go on ps.id = go.shop_id
+        where ps.audit_status = 2
+          and ps.is_deleted = 0
+        order by (coalesce(pet_orders_count, 0) + coalesce(goods_orders_count, 0)) desc, ps.create_time
+        limit 6;
+    </select>
+
+    <select id="selectDetail" resultType="com.cdwater.petmall.model.vo.PetShopDetailVO">
+        select id,
+               nickname,
+               avatar,
+               phone,
+               email,
+               province_code,
+               city_code,
+               district_code,
+               detail_address,
+               introduce
+        from pet_shop
+        where id = #{id}
+          and is_deleted = 0
+    </select>
+
+    <select id="selectPagePublic" resultType="com.cdwater.petmall.model.vo.PetShopShowVO">
+        select id, nickname, avatar, phone, province_code, city_code,
+        district_code, detail_address from pet_shop
+        <where>
+            <if test="nickname != null and nickname != ''">and nickname like concat('%', #{nickname}, '%')</if>
+            <if test="provinceCode!=null and provinceCode!=''">and province_code = #{provinceCode}</if>
+            <if test="cityCode!=null and cityCode!=''">and city_code = #{cityCode}</if>
+            <if test="districtCode!=null and districtCode!=''">and district_code = #{districtCode}</if>
+            and audit_status = 2
+            and is_deleted = 0
+        </where>
+        order by create_time
+    </select>
+</mapper>

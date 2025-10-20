@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.GoodsMapper">
+
+    <insert id="insert">
+        insert into goods
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="shopId != null">shop_id,</if>
+            <if test="typeId != null">type_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="img != null and img != ''">img,</if>
+            <if test="price != null">price,</if>
+            <if test="store != null">store,</if>
+            <if test="introduce != null and introduce != ''">introduce,</if>
+            <if test="saleVolume != null">sale_volume,</if>
+            <if test="saleStatus != null">sale_status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="shopId != null">#{shopId},</if>
+            <if test="typeId != null">#{typeId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="img != null and img != ''">#{img},</if>
+            <if test="price != null">#{price},</if>
+            <if test="store != null">#{store},</if>
+            <if test="introduce != null and introduce != ''">#{introduce},</if>
+            <if test="saleVolume != null">#{saleVolume},</if>
+            <if test="saleStatus != null">#{saleStatus},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update goods
+        <set>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="img != null and img != ''">img = #{img},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="store != null">store = #{store},</if>
+            <if test="introduce != null and introduce != ''">introduce = #{introduce},</if>
+            <if test="saleVolume != null">sale_volume = #{saleVolume},</if>
+            <if test="saleStatus != null">sale_status = #{saleStatus},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="subStockAndAddSaleVolume">
+        update goods
+        set store       = store - #{num},
+            sale_volume = sale_volume + #{num}
+        where id = #{id}
+    </update>
+
+    <update id="addStockAndSubSaleVolume">
+        update goods
+        set store       = store + #{num},
+            sale_volume = sale_volume - #{num}
+        where id = #{id}
+    </update>
+
+    <select id="selectPage" resultType="com.cdwater.petmall.model.vo.GoodsPageVO">
+        select g.id, g.name, g.img, g.price, g.store, g.introduce, g.sale_volume,
+        g.sale_status,gt.name as typeName,ps.nickname as shopName
+        from goods g
+        left join goods_type gt on g.type_id = gt.id
+        left join pet_shop ps on g.shop_id = ps.id
+        <where>
+            <if test="name!=null and name!=''">and g.name like concat('%',#{name},'%')</if>
+            <if test="shopName!=null and shopName!=''">and ps.nickname like concat('%',#{shopName},'%')</if>
+            <if test="typeId!=null">and g.type_id = #{typeId}</if>
+            <if test="saleStatus!=null">and g.sale_status = #{saleStatus}</if>
+            <if test="shopId!=null">and g.shop_id = #{shopId}</if>
+        </where>
+        order by g.id desc
+    </select>
+
+    <select id="countBySaleStatus" resultType="java.lang.Integer">
+        select count(*)
+        from goods
+        where sale_status = #{saleStatus}
+    </select>
+
+    <select id="getTypeCountMap" resultType="java.util.Map">
+        select gt.name as name, count(*) as value
+        from goods g
+                 left join goods_type gt on g.type_id = gt.id
+        group by g.type_id
+    </select>
+
+    <select id="selectById" resultType="com.cdwater.petmall.model.vo.GoodsQueryVO">
+        select id,
+               type_id,
+               shop_id,
+               name,
+               img,
+               price,
+               store,
+               introduce,
+               sale_volume,
+               sale_status
+        from goods
+        where id = #{id}
+    </select>
+
+    <select id="selectHot12" resultType="com.cdwater.petmall.model.vo.GoodsShowVO">
+        select g.id,
+               g.shop_id,
+               g.type_id,
+               g.name,
+               g.img,
+               g.price,
+               g.store,
+               g.introduce,
+               g.sale_volume,
+               g.sale_status,
+               gt.name     as typeName,
+               ps.nickname as shopName
+        from goods g
+                 left join pet_shop ps on g.shop_id = ps.id
+                 left join goods_type gt on g.type_id = gt.id
+        where sale_status = 1
+        order by sale_volume desc
+        limit 12
+    </select>
+
+    <select id="selectPagePublic" resultType="com.cdwater.petmall.model.vo.GoodsShowVO">
+        select g.id, g.shop_id, g.type_id, g.name, g.img, g.price, g.store, g.introduce, g.sale_volume,
+        g.sale_status,gt.name as typeName,ps.nickname as shopName
+        from goods g
+        left join goods_type gt on g.type_id = gt.id
+        left join pet_shop ps on g.shop_id = ps.id
+        <where>
+            <if test="name!=null and name!=''">and g.name like concat('%',#{name},'%')</if>
+            <if test="typeId!=null">and g.type_id = #{typeId}</if>
+            <if test="onlyInStock != null and onlyInStock == true">and g.store > 0</if>
+            <if test="priceMin!=null and priceMax!=null">and g.price between #{priceMin} and #{priceMax}</if>
+            <if test="shopId!=null">and g.shop_id = #{shopId}</if>
+            and ps.is_deleted = 0
+        </where>
+        order by g.sale_volume desc ,g.id desc
+    </select>
+
+    <select id="selectIdsByShopId" resultType="java.lang.Integer">
+        select id
+        from goods
+        where shop_id = #{shopId}
+    </select>
+
+    <select id="selectIdsByShopIds" resultType="java.lang.Integer">
+        select id
+        from goods
+        where shop_id in
+        <foreach collection="shopIds" item="shopId" open="(" separator="," close=")">
+            #{shopId}
+        </foreach>
+    </select>
+
+    <!--删除操作__________________________________________________________________________________________________________-->
+    <delete id="deleteById">
+        delete
+        from goods
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete
+        from goods
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByShopId">
+        delete
+        from goods
+        where shop_id = #{shopId}
+    </delete>
+
+    <delete id="deleteByShopIds">
+        delete
+        from goods
+        where shop_id in
+        <foreach collection="shopIds" item="shopId" open="(" separator="," close=")">
+            #{shopId}
+        </foreach>
+    </delete>
+    <!--删除操作__________________________________________________________________________________________________________-->
+</mapper>

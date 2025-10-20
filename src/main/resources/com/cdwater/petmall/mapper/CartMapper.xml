@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.CartMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into cart
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="goodsId != null">goods_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="goodsId != null">#{goodsId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update cart
+        <set>
+            <if test="quantity != null">quantity = #{quantity},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectByUserIdAndGoodsId" resultType="com.cdwater.petmall.entity.Cart">
+        select id, user_id, quantity, goods_id
+        from cart
+        where user_id = #{userId}
+          and goods_id = #{goodsId}
+    </select>
+
+    <select id="selectByUserId" resultType="com.cdwater.petmall.model.vo.CartGoodsVO">
+        select c.id,
+               c.user_id,
+               c.quantity,
+               c.goods_id,
+               g.shop_id,
+               g.name        as goodsName,
+               g.img         as goodsImg,
+               g.price       as goodsPrice,
+               g.store       as goodsStore,
+               g.sale_status as goodsSaleStatus
+        from cart c
+                 left join goods g on c.goods_id = g.id
+        where c.user_id = #{userId}
+        order by c.id desc
+    </select>
+
+    <!--删除操作__________________________________________________________________________________________________________-->
+    <delete id="deleteByUserIdAndGoodsId">
+        delete
+        from cart
+        where user_id = #{userId}
+          and goods_id = #{goodsId}
+    </delete>
+
+    <delete id="deleteByUserId">
+        delete
+        from cart
+        where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteByUserIds">
+        delete
+        from cart
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByGoodsId">
+        delete
+        from cart
+        where goods_id = #{goodsId}
+    </delete>
+
+    <delete id="deleteByGoodsIds">
+        delete
+        from cart
+        where goods_id in
+        <foreach collection="goodsIds" item="goodsId" open="(" separator="," close=")">
+            #{goodsId}
+        </foreach>
+    </delete>
+    <!--删除操作__________________________________________________________________________________________________________-->
+</mapper>

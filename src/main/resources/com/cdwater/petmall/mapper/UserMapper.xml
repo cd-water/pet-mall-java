@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdwater.petmall.mapper.UserMapper">
+
+    <insert id="insert">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">nickname,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="username != null">username,</if>
+            <if test="password != null">password,</if>
+            <if test="role != null">role,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="balance != null">balance,</if>
+            <if test="createTime!=null">create_time,</if>
+            <if test="updateTime!=null">update_time,</if>
+            <if test="isDeleted!=null">is_deleted,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">#{nickname},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="username != null">#{username},</if>
+            <if test="password != null">#{password},</if>
+            <if test="role != null">#{role},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="balance != null">#{balance},</if>
+            <if test="createTime!=null">#{createTime},</if>
+            <if test="updateTime!=null">#{updateTime},</if>
+            <if test="isDeleted!=null">#{isDeleted},</if>
+        </trim>
+    </insert>
+
+    <update id="addBalance">
+        update user
+        set balance = balance + #{money}
+        where id = #{id}
+    </update>
+
+    <update id="subBalance">
+        update user
+        set balance = balance - #{money}
+        where id = #{id}
+    </update>
+
+    <select id="selectBalance" resultType="java.math.BigDecimal">
+        select balance
+        from user
+        where id = #{id}
+    </select>
+
+    <update id="deleteById">
+        update user
+        set nickname='账号已注销',
+            is_deleted = 1
+        where id = #{id}
+    </update>
+
+    <update id="deleteByIds">
+        update user set nickname='账号已注销', is_deleted = 1 where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+    <update id="updateById">
+        update user
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="balance != null">balance = #{balance},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.cdwater.petmall.entity.User">
+        select id,
+               nickname,
+               avatar,
+               username,
+               password,
+               role,
+               phone,
+               email,
+               balance,
+               create_time,
+               update_time,
+               is_deleted
+        from user
+        where id = #{id}
+          and is_deleted = 0
+    </select>
+
+    <!--不回显密码-->
+    <select id="selectPage" resultType="com.cdwater.petmall.entity.User">
+        select id, nickname, avatar, username, role, phone, email, balance, create_time, update_time, is_deleted
+        from user
+        <where>
+            <if test="nickname!=null and nickname!=''">and nickname like concat('%',#{nickname},'%')</if>
+            and is_deleted=0
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectByUsername" resultType="com.cdwater.petmall.entity.User">
+        select id,
+               nickname,
+               avatar,
+               username,
+               password,
+               role,
+               phone,
+               email,
+               balance,
+               create_time,
+               update_time,
+               is_deleted
+        from user
+        where username = #{username}
+    </select>
+
+    <select id="selectByPhone" resultType="com.cdwater.petmall.entity.User">
+        select id,
+               nickname,
+               avatar,
+               username,
+               password,
+               role,
+               phone,
+               email,
+               balance,
+               create_time,
+               update_time,
+               is_deleted
+        from user
+        where phone = #{phone}
+    </select>
+</mapper>

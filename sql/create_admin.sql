@@ -1,0 +1,21 @@
+# 先执行create_table.sql脚本
+INSERT INTO admin (nickname,
+                   avatar,
+                   username,
+                   password,
+                   role,
+                   phone,
+                   email,
+                   create_time,
+                   update_time,
+                   is_deleted)
+VALUES ('管理员',
+        'avatar.png',
+        'admin',
+        MD5('Aa123456'),
+        0,
+        '13600000000',
+        'admin@petmall.com',
+        NOW(),
+        NOW(),
+        0);
